@@ -12,7 +12,18 @@
     box-shadow: 0 0 40px rgba(0, 255, 200, 0.4);
     border-radius: 8px;
     background: #050510;
-    
+    #game-container {
+    position: relative;
+    border: 4px solid #1f1f3a;
+    box-shadow: 0 0 40px rgba(0, 255, 200, 0.4);
+    border-radius: 8px;
+    background: #050510;
+    /* In line ko purani width/height ki jagah replace karein */
+    width: 95vw; 
+    max-width: 800px;
+    height: 80vh; 
+    max-height: 600px;
+}
     /* Responsive settings */
     width: 95vw; 
     max-width: 800px;
@@ -29,6 +40,21 @@ canvas {
     border-radius: 4px;
 }
         body {
+            touch-action: None;
+            body {
+    margin: 0;
+    padding: 0;
+    background-color: #0b0b16;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none; /* Yeh line add karni hai */
+}
             margin: 0;
             padding: 0;
             background-color: #0b0b16;
@@ -449,7 +475,37 @@ resizeCanvas();
                 showScreen('main-menu');
             }
         });
+// --- Touch Controls for Mobile ---
+canvas.addEventListener('touchmove', (e) => {
+    if (!gameActive) return;
+    let touch = e.touches[0];
+    let rect = canvas.getBoundingClientRect();
+    
+    // Canvas scaling factor calculate karna
+    let scaleX = canvas.width / rect.width;
+    let scaleY = canvas.height / rect.height;
+    
+    // Player movement (X aur Y dono axis par)
+    let newX = (touch.clientX - rect.left) * scaleX - (player.width / 2);
+    let newY = (touch.clientY - rect.top) * scaleY - (player.height / 2);
+    
+    // Boundary checks (Screen se bahar na jaye)
+    player.x = Math.max(0, Math.min(canvas.width - player.width, newX));
+    player.y = Math.max(0, Math.min(canvas.height - player.height, newY));
+    
+    e.preventDefault();
+}, {passive: false});
 
+// Fire control ke liye touchstart ka use karein
+canvas.addEventListener('touchstart', (e) => {
+    if (!gameActive) return;
+    // Jab bhi screen touch ho, fire karein
+    let current = Date.now();
+    if (current - lastShotTime > shootCooldown) { 
+        shootBullet(); 
+        lastShotTime = current; 
+    }
+}, {passive: false});
         function createExplosion(x, y, color, count = 20, speedMultiplier = 1) {
             playSynthSFX('explosion');
             
