@@ -231,6 +231,12 @@ resizeCanvas();
         <div id="game-over-screen" class="hidden">
             <h1>GAME OVER</h1>
             <p id="final-score">Your Score: 0</p>
+            <div id="game-over-screen" class="hidden">
+    <h1>GAME OVER</h1>
+    <p id="final-score">Your Score: 0</p>
+    <!-- Ye naya button add karein -->
+    <div class="menu-btn" onclick="resetGameFromButton()" style="margin: 20px auto; width: 150px;">REPLAY</div>
+</div>
             <p class="blink" style="color: #ff3333; font-size: 16px;">Press 'R' to Return to Menu</p>
         </div>
 
@@ -442,6 +448,16 @@ resizeCanvas();
             showScreen(null); 
             uiLayer.classList.remove('hidden'); 
             resetGame();
+            function resetGameFromButton() {
+    // Buttons ko hide karein
+    gameOverScreen.classList.add("hidden");
+    victoryScreen.classList.add("hidden");
+    
+    // Game reset aur start karein
+    resetGame();
+    gameActive = true;
+    if(burnerGain) burnerGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+}
             gameActive = true;
             if(burnerGain) burnerGain.gain.setValueAtTime(0.18, audioCtx.currentTime); // Turn burner on
         }
@@ -476,27 +492,26 @@ resizeCanvas();
             }
         });
 // --- Touch Controls for Mobile ---
-canvas.addEventListener('touchmove', (e) => {
+// Variable define karein
+let touchFireInterval = null;
+
+canvas.addEventListener('touchstart', (e) => {
     if (!gameActive) return;
-    let touch = e.touches[0];
-    let rect = canvas.getBoundingClientRect();
     
-    // Canvas scaling factor calculate karna
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    
-    // Player movement (X aur Y dono axis par)
-    let newX = (touch.clientX - rect.left) * scaleX - (player.width / 2);
-    let newY = (touch.clientY - rect.top) * scaleY - (player.height / 2);
-    
-    // Boundary checks (Screen se bahar na jaye)
-    player.x = Math.max(0, Math.min(canvas.width - player.width, newX));
-    player.y = Math.max(0, Math.min(canvas.height - player.height, newY));
-    
+    // Continuous fire shuru karein
+    if (!touchFireInterval) {
+        touchFireInterval = setInterval(() => {
+            shootBullet();
+        }, 150); // 150ms ka cooldown
+    }
     e.preventDefault();
 }, {passive: false});
 
-// Fire control ke liye touchstart ka use karein
+canvas.addEventListener('touchend', (e) => {
+    // Touch hatate hi fire rok dein
+    clearInterval(touchFireInterval);
+    touchFireInterval = null;
+}, {passive: false});
 canvas.addEventListener('touchstart', (e) => {
     if (!gameActive) return;
     // Jab bhi screen touch ho, fire karein
