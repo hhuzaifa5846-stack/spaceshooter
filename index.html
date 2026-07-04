@@ -745,6 +745,20 @@ canvas.addEventListener('touchstart', (e) => {
         }
 
         function updateGame() {
+        // --- Updated Touch Movement Code ---
+canvas.addEventListener('touchmove', (e) => {
+    let touch = e.touches[0];
+    let rect = canvas.getBoundingClientRect();
+    
+    // Canvas scale calculate karein
+    let scaleX = canvas.width / rect.width;
+    
+    // Sirf X-coordinate (Left/Right) update karein, Y ko fix rakhein
+    player.x = (touch.clientX - rect.left) * scaleX - (player.width / 2);
+    
+    // Y coordinate ko yahan na chhein, taake player up/down move na ho
+    e.preventDefault();
+}, {passive: false});
         // Mobile touch movement ke liye
 canvas.addEventListener('touchmove', (e) => {
     let touch = e.touches[0];
